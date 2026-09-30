@@ -1,0 +1,275 @@
+# Search preferences and scoring config. Safe to commit — deliberately
+# contains no personal data.
+#
+# Name, contact details and work-authorization status live in
+# config/identity.yml, which is gitignored. Copy identity.example.yml to
+# identity.yml and fill it in.
+
+# Titles that are a direct hit. Matching is case-insensitive substring.
+target_titles:
+  tier1:        # exactly his lane — highest weight
+    - machine learning engineer
+    - ml engineer
+    - ai engineer
+    - ai/ml engineer
+    - genai engineer
+    - generative ai engineer
+    - llm engineer
+    - applied ai engineer
+    - ai systems engineer
+    - agent engineer
+    - applied scientist
+    - research engineer
+    - ai platform engineer
+    - ml platform engineer
+    - machine learning platform engineer
+    - ai infrastructure engineer
+  tier2:        # strong adjacent
+    - deep learning engineer
+    - mlops engineer
+    - machine learning infrastructure
+    - nlp engineer
+    - computer vision engineer
+    - data scientist
+    - ai solutions architect
+    - forward deployed engineer
+  tier3:        # possible, lower priority
+    - software engineer
+    - backend engineer
+    - platform engineer
+    - data engineer
+
+# Compositional matching, applied when no exact phrase above matches.
+# A role noun plus an AI/ML domain word counts, so "Engineer, Machine
+# Learning" and "Software Engineer - ML Platform" are caught. Amazon, Meta
+# and Google title most of their ML roles that way, and a literal phrase
+# list misses every one of them.
+compositional:
+  role_nouns:
+    - engineer
+    - scientist
+    - architect
+    - developer
+  domains_tier1:
+    - machine learning
+    - \bml\b
+    - \bai\b
+    - artificial intelligence
+    - \bllm\b
+    - genai
+    - generative ai
+    - deep learning
+    - agentic
+    - foundation model
+    - large language model
+  domains_tier2:
+    - \bnlp\b
+    - natural language
+    - computer vision
+    - perception
+    - recommendation
+    - ranking
+    - personalization
+    - relevance
+    - data science
+    - mlops
+    - inference
+    - model serving
+    - speech
+    - multimodal
+
+# Any of these in the title = not for him, drop before scoring.
+exclude_titles:
+  - intern
+  - internship
+  - co-op
+  - new grad
+  - university grad
+  - phd
+  - director
+  - vice president
+  - "vp,"
+  - head of
+  - manager      # IC roles only
+  - recruiter
+  - sales
+  - account executive
+  - customer success
+  - marketing
+  - designer
+  - technician
+  - hardware
+  - asic
+  - rtl
+  - analog
+  - mechanical
+  - firmware
+
+seniority:
+  years_experience: 5
+  # Roles asking for far more than he has get down-weighted, not dropped.
+  max_reasonable_years: 9
+  prefer:
+    - senior
+    - "ii"
+    - "iii"
+    - staff
+    - lead
+  neutral:
+    - ""
+
+# Skills lifted from the resume. Hits in the JD raise the score.
+skills:
+  high_value:      # his genuine differentiators
+    - fine-tuning
+    - fine tuning
+    - lora
+    - qlora
+    - peft
+    - rlhf
+    - dpo
+    - sft
+    - pretraining
+    - deepspeed
+    - fsdp
+    - agentic
+    - langchain
+    - langgraph
+    - rag
+    - retrieval augmented
+    - vllm
+    - llm
+    - large language model
+    - multimodal
+    - vision language
+    - document intelligence
+    - transformers
+  standard:
+    - pytorch
+    - tensorflow
+    - python
+    - kubernetes
+    - docker
+    - mlops
+    - mlflow
+    - sagemaker
+    - bedrock
+    - vertex ai
+    - azure openai
+    - aws
+    - gcp
+    - azure
+    - spark
+    - airflow
+    - kafka
+    - fastapi
+    - vector database
+    - embeddings
+    - pinecone
+    - faiss
+    - triton
+    - onnx
+
+locations:
+  # Higher weight = more attractive. Remote wins; then his own metro.
+  preferred:
+    remote: 30
+    tampa: 25
+    florida: 22
+    orlando: 18
+    miami: 18
+    boston: 15         # he studied there, has a network
+    austin: 12
+    "new york": 12
+    seattle: 12
+    "san francisco": 10
+    "bay area": 10
+    "san jose": 10
+    sunnyvale: 10
+    "santa clara": 10
+    atlanta: 10
+    dallas: 8
+    chicago: 8
+  # Postings outside the US aren't useful on an F-1 EAD.
+  require_us: true
+
+# Regex patterns (case-insensitive) that make a posting a waste of his time.
+#
+# These are deliberately NOT loose substrings. "will you now or in the future
+# require sponsorship" is the standard ATS *question* and appears on jobs that
+# sponsor happily — matching on it would throw away most of the good roles.
+# Every pattern below requires an explicit negation near the sponsorship word.
+blockers:
+  sponsorship:
+    - '\b(?:will|can|do|does|are|is)\s+not\b[^.]{0,40}\bsponsor'
+    - '\b(?:un(?:able|willing)|not\s+able)\b[^.]{0,40}\bsponsor'
+    - '\bno\s+(?:visa\s+)?sponsorship\b'
+    - '\bsponsorship\s+is\s+not\s+(?:available|offered|provided)\b'
+    - '\bwithout\s+(?:the\s+need\s+for\s+)?(?:visa\s+|employer\s+)?sponsorship\b'
+    - '\bdoes\s+not\s+(?:currently\s+)?(?:offer|provide)\b[^.]{0,30}\bsponsorship\b'
+    - '\bnot\s+(?:eligible|considered)\b[^.]{0,30}\bsponsorship\b'
+    - '\bmust\s+be\s+(?:legally\s+)?authorized[^.]{0,60}\bwithout\b[^.]{0,30}\bsponsor'
+  clearance:
+    - '\bsecurity\s+clearance\b'
+    - '\bactive\s+clearance\b'
+    - '\bts\s*/\s*sci\b'
+    - '\btop\s+secret\b'
+    - '\bsecret\s+clearance\b'
+    - '\bpolygraph\b'
+    - '\bpublic\s+trust\b'
+    - '\bitar\b'
+    - '\bexport\s+control(?:led)?\b'
+    - '\b(?:u\.?s\.?|american)\s+citizen(?:ship)?\s+(?:is\s+)?(?:required|mandatory)\b'
+    - '\bmust\s+be\s+a\s+(?:u\.?s\.?\s+)?citizen\b'
+    - '\bcitizenship\s+(?:is\s+)?required\b'
+    - '\b(?:u\.?s\.?\s+)?citizens?\s+(?:or|and)\s+green\s+card\s+holders?\s+only\b'
+    - '\bonly\s+(?:u\.?s\.?\s+)?citizens?\b'
+
+# Scoring weights. Tuned so a theoretical perfect match lands near 100 and a
+# realistic strong match lands 72-88 — if everything scores 100 the ranking
+# tells you nothing.
+weights:
+  title_tier1: 34
+  title_tier2: 22
+  title_tier3: 8
+  location_scale: 0.5        # multiplies the locations.preferred values
+  bucket:
+    bigtech: 7
+    ailab: 6
+    enterprise: 4
+    staffing: 0
+  seniority_match: 5
+  fresh_24h: 8
+  fresh_3d: 5
+  fresh_7d: 2
+  skill_high_each: 3
+  skill_high_cap: 18
+  skill_std_each: 1
+  skill_std_cap: 8
+  sponsors_stated: 8         # JD explicitly says it sponsors
+  overqualified_penalty: 12  # wants far more years than he has
+  phd_required_penalty: 10   # he has an MS, not a PhD
+
+# H-1B sponsorship history from the USCIS Employer Data Hub. A JD that never
+# mentions sponsorship tells you nothing; petition counts do. The realistic
+# cap season here is March 2027, so an employer with no filings on record is
+# a dead end however good the role looks.
+h1b:
+  enabled: true
+  fiscal_year: 2023          # newest export still served at a stable URL
+  tiers:                     # total approvals -> score bonus
+    - {min: 1000, bonus: 10}
+    - {min: 250,  bonus: 8}
+    - {min: 50,   bonus: 6}
+    - {min: 10,   bonus: 4}
+    - {min: 1,    bonus: 2}
+  # No penalty for a missing record. Name matching is imperfect (OpenAI is
+  # genuinely absent from the FY2023 export), and a matcher miss must not
+  # demote a good role. Absence is reported, not scored.
+  no_record_penalty: 0
+
+# Score thresholds that drive behavior.
+thresholds:
+  instant_alert: 70    # Telegram push the moment it appears
+  digest: 40           # include in the 7am digest
+  ignore_below: 25     # never surface

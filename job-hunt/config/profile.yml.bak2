@@ -1,0 +1,340 @@
+# Search preferences and scoring config for Surya Teja.
+# Safe to commit — deliberately contains no personal data.
+# Name, contact and work-authorization status live in config/identity.yml (gitignored).
+#
+# Profile this is tuned for: AI/ML Engineer, ~4.5 yrs (IBM, Capgemini, Deloitte),
+# specialised in fraud detection, risk analytics and financial ML, plus GenAI/RAG.
+# Based in Dallas TX, open to relocation. F-1 OPT — can work now, needs H-1B later.
+
+target_titles:
+  tier1:        # exactly his lane — highest weight
+    - machine learning engineer
+    - ml engineer
+    - ai engineer
+    - ai/ml engineer
+    - genai engineer
+    - generative ai engineer
+    - llm engineer
+    - applied ai engineer
+    - applied machine learning engineer
+    - machine learning scientist
+    - mlops engineer
+    - ml platform engineer
+    - machine learning platform engineer
+    - ai platform engineer
+  tier2:        # strong adjacent — his fraud/risk/fintech background travels well here
+    - deep learning engineer
+    - nlp engineer
+    - data scientist
+    - decision scientist
+    - risk analytics
+    - fraud analytics
+    - quantitative analyst
+    - machine learning infrastructure
+    - ai solutions architect
+    - research engineer
+    - applied scientist
+    - computer vision engineer
+  tier3:        # possible, lower priority
+    - software engineer
+    - backend engineer
+    - platform engineer
+    - data engineer
+
+# Compositional matching, applied when no exact phrase above matches.
+# "Engineer, Machine Learning" and "Software Engineer - ML Platform" are caught.
+compositional:
+  role_nouns:
+    - engineer
+    - scientist
+    - architect
+    - developer
+  domains_tier1:
+    - machine learning
+    - \bml\b
+    - \bai\b
+    - artificial intelligence
+    - \bllm\b
+    - genai
+    - generative ai
+    - deep learning
+    - agentic
+    - foundation model
+    - large language model
+  domains_tier2:
+    - \bnlp\b
+    - natural language
+    - computer vision
+    - fraud
+    - anomaly detection
+    - risk model
+    - recommendation
+    - ranking
+    - personalization
+    - relevance
+    - data science
+    - mlops
+    - inference
+    - model serving
+    - multimodal
+
+# Any of these in the title = not for him, drop before scoring.
+# Tuned for MID-LEVEL (2-6 yrs): senior-plus titles are excluded, and so are
+# entry/new-grad ones — 4.5 yrs on the resume gets filtered out of both ends.
+exclude_titles:
+  - intern
+  - internship
+  - co-op
+  - new grad
+  - new graduate
+  - university grad
+  - early career
+  - apprentice
+  - phd
+  - staff
+  - principal
+  - distinguished
+  - fellow
+  - director
+  - vice president
+  - "vp,"
+  - head of
+  - manager      # IC roles only
+  - recruiter
+  - sales
+  - account executive
+  - customer success
+  - marketing
+  - designer
+  - technician
+  - hardware
+  - asic
+  - rtl
+  - analog
+  - mechanical
+  - firmware
+
+seniority:
+  years_experience: 4.5
+  # Roles asking for far more than he has get down-weighted, not dropped.
+  # Set to 7: a posting demanding 8+ yrs is a stretch at 4.5.
+  max_reasonable_years: 5
+  prefer:
+    - "ii"
+    - "iii"
+    - mid-level
+    - mid level
+  neutral:
+    - ""
+
+# Skills lifted from HIS resume. Hits in the JD raise the score.
+skills:
+  high_value:      # his genuine differentiators
+    - fraud detection
+    - fraud
+    - anomaly detection
+    - risk analytics
+    - credit risk
+    - transaction monitoring
+    - aml
+    - kyc
+    - finbert
+    - explainable ai
+    - shap
+    - responsible ai
+    - model governance
+    - model monitoring
+    - drift detection
+    - llm evaluation
+    - rag
+    - retrieval augmented
+    - semantic search
+    - document intelligence
+    - langchain
+    - langgraph
+    - crewai
+    - agentic
+    - fine-tuning
+    - fine tuning
+    - lora
+    - qlora
+    - peft
+    - sft
+    - instruction tuning
+    - quantization
+    - llm
+    - large language model
+    - transformers
+    - hugging face
+    - vision language
+    - multimodal
+    - vector database
+    - embeddings
+  standard:
+    - python
+    - sql
+    - pytorch
+    - tensorflow
+    - keras
+    - scikit-learn
+    - xgboost
+    - lightgbm
+    - opencv
+    - pandas
+    - numpy
+    - spark
+    - pyspark
+    - kafka
+    - airflow
+    - aws
+    - sagemaker
+    - bedrock
+    - azure
+    - gcp
+    - vertex ai
+    - mlflow
+    - docker
+    - kubernetes
+    - fastapi
+    - flask
+    - rest api
+    - ci/cd
+    - github actions
+    - elasticsearch
+    - faiss
+    - pinecone
+    - chromadb
+    - weaviate
+    - postgresql
+    - mysql
+    - power bi
+    - grafana
+    - optuna
+    - time series
+    - a/b testing
+
+locations:
+  # Higher weight = more attractive. Remote first; Dallas a close second,
+  # because his fraud/fintech background lines up with what is actually in DFW
+  # (JPMorgan and Capital One in Plano, Goldman in Dallas, Toyota Financial,
+  # Fidelity in Westlake). Charlotte and Jersey City weighted up for the same
+  # reason — they are banking towns.
+  preferred:
+    remote: 30
+    dallas: 27
+    plano: 26
+    irving: 24
+    "fort worth": 23
+    frisco: 23
+    richardson: 22
+    texas: 20
+    austin: 17
+    houston: 15
+    charlotte: 14
+    "jersey city": 13
+    "new york": 13
+    atlanta: 12
+    chicago: 12
+    phoenix: 11
+    denver: 10
+    boston: 10
+    seattle: 10
+    "san francisco": 8
+    "bay area": 8
+    "san jose": 8
+  # Postings outside the US aren't useful on an F-1 EAD.
+  require_us: true
+
+# Regex patterns (case-insensitive) that make a posting a waste of his time.
+blockers:
+  # SPONSORSHIP BLOCKING IS OFF, deliberately.
+  # Surya is on F-1 OPT: he can legally work TODAY without sponsorship, so a
+  # company that says "we don't sponsor" is still a viable 2-3 year job. Leaving
+  # this empty means those roles score and alert normally instead of being
+  # filtered out of the shortlist.
+  # TO RE-ENABLE when the H-1B timeline gets tight: move the patterns from
+  # sponsorship_patterns_disabled (below) back under this key.
+  sponsorship: []
+  # Roles gated on being a PhD student or candidate. Not a penalty — a wall.
+  # He has an MS and cannot retroactively enrol in a doctorate, so these are
+  # never applicable however well the rest of the posting scores.
+  phd_program:
+    - '\bph\.?\s?d\.?\s+(?:students?|candidates?|interns?)\b'
+    - '\b(?:currently\s+)?(?:enrolled\s+in|pursuing|working\s+towards?)\b[^.]{0,30}\bph\.?\s?d\.?\b'
+    - '\bph\.?\s?d\.?\b[^.]{0,30}\b(?:program|programme)\b'
+    - '\bmust\s+be\s+(?:a\s+)?(?:current\s+)?(?:ph\.?\s?d\.?|doctoral)\b'
+    - '\bdoctoral\s+(?:students?|candidates?)\b'
+  clearance:
+    - '\bsecurity\s+clearance\b'
+    - '\bactive\s+clearance\b'
+    - '\bts\s*/\s*sci\b'
+    - '\btop\s+secret\b'
+    - '\bsecret\s+clearance\b'
+    - '\bpolygraph\b'
+    - '\bpublic\s+trust\b'
+    - '\bitar\b'
+    - '\bexport\s+control(?:led)?\b'
+    - '\b(?:u\.?s\.?|american)\s+citizen(?:ship)?\s+(?:is\s+)?(?:required|mandatory)\b'
+    - '\bmust\s+be\s+a\s+(?:u\.?s\.?\s+)?citizen\b'
+    - '\bcitizenship\s+(?:is\s+)?required\b'
+    - '\b(?:u\.?s\.?\s+)?citizens?\s+(?:or|and)\s+green\s+card\s+holders?\s+only\b'
+    - '\bonly\s+(?:u\.?s\.?\s+)?citizens?\b'
+
+# Parked, not active. See the note under blockers.sponsorship.
+sponsorship_patterns_disabled:
+  - '\b(?:will|can|do|does|are|is)\s+not\b[^.]{0,40}\bsponsor'
+  - '\b(?:un(?:able|willing)|not\s+able)\b[^.]{0,40}\bsponsor'
+  - '\bno\s+(?:visa\s+)?sponsorship\b'
+  - '\bsponsorship\s+is\s+not\s+(?:available|offered|provided)\b'
+  - '\bwithout\s+(?:the\s+need\s+for\s+)?(?:visa\s+|employer\s+)?sponsorship\b'
+  - '\bdoes\s+not\s+(?:currently\s+)?(?:offer|provide)\b[^.]{0,30}\bsponsorship\b'
+  - '\bnot\s+(?:eligible|considered)\b[^.]{0,30}\bsponsorship\b'
+  - '\bmust\s+be\s+(?:legally\s+)?authorized[^.]{0,60}\bwithout\b[^.]{0,30}\bsponsor'
+
+# Scoring weights. A perfect match lands near 100, a realistic strong match 72-88.
+weights:
+  title_tier1: 34
+  title_tier2: 22
+  title_tier3: 8
+  location_scale: 0.5        # multiplies the locations.preferred values
+  bucket:
+    # Reweighted for Surya: enterprise/financial-services is his actual lane,
+    # not frontier AI labs. Staffing is 3, not 0 — he is open to W2 contract
+    # work and burying those entirely would hide real openings.
+    bigtech: 7
+    enterprise: 6
+    ailab: 4
+    staffing: 3
+  seniority_match: 5
+  fresh_24h: 8
+  fresh_3d: 5
+  fresh_7d: 2
+  skill_high_each: 3
+  skill_high_cap: 18
+  skill_std_each: 1
+  skill_std_cap: 8
+  sponsors_stated: 6         # smaller than Vishnu's: less urgent on fresh OPT
+  overqualified_penalty: 14  # base, at 1 yr over the cap
+  overqualified_step: 6      # added per extra year over, capped at 2.5x base
+  phd_required_penalty: 16   # he has an MS, not a PhD
+
+# H-1B history from the USCIS Employer Data Hub. Kept as a BONUS, never a
+# filter — he has OPT runway, so a non-sponsoring employer is not a dead end
+# today, it just scores a little lower than one with a filing history.
+h1b:
+  enabled: true
+  fiscal_year: 2023
+  tiers:
+    - {min: 1000, bonus: 10}
+    - {min: 250,  bonus: 8}
+    - {min: 50,   bonus: 6}
+    - {min: 10,   bonus: 4}
+    - {min: 1,    bonus: 2}
+  no_record_penalty: 0
+
+# Score thresholds that drive behavior.
+# Starting values — these need retuning once we see the real distribution.
+thresholds:
+  instant_alert: 68    # Telegram push the moment it appears
+  digest: 38           # include in the morning digest
+  ignore_below: 25     # never surface

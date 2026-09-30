@@ -1,0 +1,95 @@
+name: digest
+
+# 12:00 UTC = 08:00 Eastern. This job polls *and* sends the summary, so it
+# owns the 8am slot; poll.yml covers noon and 6pm.
+# Cron is UTC and ignores DST — this becomes 07:00 Eastern in November.
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write         # the site-branch push needs it, same as poll
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Restore personal config
+        env:
+          IDENTITY_YML: ${{ secrets.IDENTITY_YML }}
+        run: printf '%s' "$IDENTITY_YML" > config/identity.yml
+
+      # The digest reads first_seen out of the DB, so the DB has to exist.
+      # Poll without alerting (the hourly job owns instant alerts), then
+      # summarize the last 24h.
+      - name: Poll then send digest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -m jobhunt poll --top 0 --min-score 200
+          python -m jobhunt digest --hours 24 --limit 25
+          rm -f config/identity.yml
+
+      - name: Publish site branch for Cloudflare Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -m jobhunt site
+          cd site
+          # A throwaway repo containing only the built site, force-pushed to an
+          # orphan `site` branch. Committing ~900 KB of JSON to main three
+          # times a day would grow the repo by ~1 GB a year; this keeps exactly
+          # one commit and no history.
+          git init -q -b site
+          git config user.name  "jobhunt-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "site: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # Non-fatal: the branch is a record of what was deployed, and
+          # losing it must not stop the board from updating.
+          if git push -f -q \
+              "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+              site:site; then
+            echo "published $(du -sh . | cut -f1) to the site branch"
+          else
+            echo "::warning::site branch push failed; continuing to deploy"
+          fi
+
+          cd ..
+      # Deploy straight to Cloudflare Pages from here rather than using
+      # Cloudflare's git integration. That integration repeatedly built `main`
+      # (running pip install -r requirements.txt) and created a Worker running
+      # `npx wrangler deploy` instead of a Pages project. Deploying from CI
+      # removes both failure modes: this job already has the built site, and
+      # the branch it came from is not in question.
+      - name: Deploy to Cloudflare Pages
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          PROJ: ${{ vars.CF_PROJECT_NAME || 'jobhunt-board' }}
+        run: |
+          # wrangler deploys but never creates. On a fresh account the project
+          # does not exist yet and the deploy dies with "project does not
+          # exist", so create it first and ignore the error when it is already
+          # there. Note the *.pages.dev subdomain is globally unique — if the
+          # name is taken by someone else, creation fails and the log says so.
+          npx --yes wrangler@4 pages project create "$PROJ" \
+            --production-branch main || echo "project exists (or name taken) — continuing"
+          npx --yes wrangler@4 pages deploy site/public \
+            --project-name "$PROJ" \
+            --branch main \
+            --commit-dirty=true

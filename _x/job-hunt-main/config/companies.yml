@@ -1,0 +1,185 @@
+# Every entry here was confirmed live by tools/probe_sources.py.
+# Add nothing to this file that the probe hasn't returned 200 for.
+#
+# bucket: bigtech | ailab | enterprise | staffing
+
+# ------------------------------------------------------------------ big tech
+- {source: amazon,   company: Amazon,     bucket: bigtech}
+- {source: workday,  company: NVIDIA,     bucket: bigtech, host: nvidia.wd5,     tenant: nvidia,     site: NVIDIAExternalCareerSite}
+- {source: workday,  company: Salesforce, bucket: bigtech, host: salesforce.wd12, tenant: salesforce, site: External_Career_Site}
+- {source: workday,  company: Adobe,      bucket: bigtech, host: adobe.wd5,      tenant: adobe,      site: external_experienced}
+# Cisco: cisco.wd1 returns 422 for every site slug tried (External,
+#   Cisco_Careers, CiscoCareers, cisco, External_Career_Site, jobsearch).
+#   Reachable via the aggregator feed instead.
+- {source: oracle,   company: Oracle,     bucket: bigtech, host: eeho.fa.us2.oraclecloud.com, site: CX_1001}
+
+# ------------------------------------------------------------------- AI labs
+- {source: greenhouse, company: Anthropic,   bucket: ailab, slug: anthropic}
+- {source: ashby,      company: OpenAI,      bucket: ailab, slug: openai}
+- {source: ashby,      company: Cohere,      bucket: ailab, slug: cohere}
+- {source: ashby,      company: ElevenLabs,  bucket: ailab, slug: elevenlabs}
+- {source: ashby,      company: Harvey,      bucket: ailab, slug: harvey}
+- {source: ashby,      company: Sierra,      bucket: ailab, slug: sierra}
+- {source: ashby,      company: Modal,       bucket: ailab, slug: modal}
+- {source: ashby,      company: Baseten,     bucket: ailab, slug: baseten}
+- {source: ashby,      company: Deepgram,    bucket: ailab, slug: deepgram}
+- {source: greenhouse, company: Databricks,  bucket: ailab, slug: databricks}
+- {source: greenhouse, company: Waymo,       bucket: ailab, slug: waymo}
+- {source: lever,      company: Palantir,    bucket: ailab, slug: palantir}
+
+# -------------------------------------------------- high-growth product cos
+- {source: greenhouse, company: Stripe,     bucket: enterprise, slug: stripe}
+- {source: greenhouse, company: Figma,      bucket: enterprise, slug: figma}
+- {source: greenhouse, company: Datadog,    bucket: enterprise, slug: datadog}
+- {source: greenhouse, company: Cloudflare, bucket: enterprise, slug: cloudflare}
+- {source: greenhouse, company: Reddit,     bucket: enterprise, slug: reddit}
+- {source: greenhouse, company: Pinterest,  bucket: enterprise, slug: pinterest}
+- {source: greenhouse, company: Instacart,  bucket: enterprise, slug: instacart}
+- {source: greenhouse, company: Lyft,       bucket: enterprise, slug: lyft}
+- {source: greenhouse, company: Samsara,    bucket: enterprise, slug: samsara}
+- {source: greenhouse, company: Discord,    bucket: enterprise, slug: discord}
+- {source: greenhouse, company: Duolingo,   bucket: enterprise, slug: duolingo}
+- {source: greenhouse, company: GitLab,     bucket: enterprise, slug: gitlab}
+- {source: greenhouse, company: Airtable,   bucket: enterprise, slug: airtable}
+- {source: ashby,      company: Notion,     bucket: enterprise, slug: notion}
+- {source: ashby,      company: Linear,     bucket: enterprise, slug: linear}
+- {source: ashby,      company: Vanta,      bucket: enterprise, slug: vanta}
+- {source: lever,      company: Match Group, bucket: enterprise, slug: matchgroup}
+
+# ------------------------------------------------------- fintech / financial
+- {source: greenhouse, company: Coinbase,   bucket: enterprise, slug: coinbase}
+- {source: greenhouse, company: Robinhood,  bucket: enterprise, slug: robinhood}
+- {source: greenhouse, company: Affirm,     bucket: enterprise, slug: affirm}
+- {source: greenhouse, company: Brex,       bucket: enterprise, slug: brex}
+- {source: greenhouse, company: Checkr,     bucket: enterprise, slug: checkr}
+- {source: ashby,      company: Ramp,       bucket: enterprise, slug: ramp}
+- {source: smartrecruiters, company: Visa,  bucket: enterprise, slug: Visa}
+- {source: workday,  company: Capital One,  bucket: enterprise, host: capitalone.wd12, tenant: capitalone, site: Capital_One}
+- {source: workday,  company: Mastercard,   bucket: enterprise, host: mastercard.wd1,  tenant: mastercard, site: CorporateCareers}
+- {source: workday,  company: PayPal,       bucket: enterprise, host: paypal.wd1,      tenant: paypal,     site: jobs}
+- {source: workday,  company: BlackRock,    bucket: enterprise, host: blackrock.wd1,   tenant: blackrock,  site: BlackRock_Professional}
+
+# ------------------------------------------------------- large US enterprise
+- {source: workday,  company: HPE,        bucket: enterprise, host: hpe.wd5,      tenant: hpe,      site: Jobsathpe}
+- {source: workday,  company: Comcast,    bucket: enterprise, host: comcast.wd5,  tenant: comcast,  site: Comcast_Careers}
+- {source: workday,  company: Verizon,    bucket: enterprise, host: verizon.wd12, tenant: verizon,  site: verizon-careers}
+- {source: workday,  company: Target,     bucket: enterprise, host: target.wd5,   tenant: target,   site: targetcareers}
+- {source: workday,  company: Workday,    bucket: enterprise, host: workday.wd5,  tenant: workday,  site: Workday}
+# Dell: dell.wd1 and dell.wd5 return 0 results for every slug tried.
+#   Reachable via the aggregator feed instead.
+
+# ------------------------------------------------- staffing via aggregators
+# Kforce, Insight Global, Randstad, TEKsystems and Robert Half all returned
+# 404/401/403 from their own sites. They publish to Indeed and LinkedIn, so
+# we read them there instead. Expected to be flaky on CI (datacenter IPs get
+# blocked); reliable locally.
+- source: aggregator
+  company: Aggregators
+  bucket: enterprise   # per-row bucketing overrides this
+  sites: [indeed, linkedin]
+  hours_old: 336
+  results_per_term: 40
+  terms:
+    - machine learning engineer
+    - AI engineer
+    - LLM engineer
+    - generative AI engineer
+    - MLOps engineer
+    - applied scientist
+
+# ============================ expansion: 38 boards verified 2026-08-09 ======
+# --- frontier AI / robotics ---
+- {source: greenhouse, company: xAI,                   bucket: ailab, slug: xai}
+- {source: greenhouse, company: Scale AI,              bucket: ailab, slug: scaleai}
+- {source: greenhouse, company: Figure AI,             bucket: ailab, slug: figureai}
+- {source: greenhouse, company: Neuralink,             bucket: ailab, slug: neuralink}
+- {source: ashby,      company: Physical Intelligence, bucket: ailab, slug: physicalintelligence}
+- {source: ashby,      company: Cursor,                bucket: ailab, slug: cursor}
+- {source: ashby,      company: Decagon,               bucket: ailab, slug: decagon}
+- {source: ashby,      company: LangChain,             bucket: ailab, slug: langchain}
+- {source: ashby,      company: LlamaIndex,            bucket: ailab, slug: llamaindex}
+- {source: ashby,      company: Suno,                  bucket: ailab, slug: suno}
+- {source: ashby,      company: Writer,                bucket: ailab, slug: writer}
+- {source: ashby,      company: Abridge,               bucket: ailab, slug: abridge}
+- {source: ashby,      company: Pika,                  bucket: ailab, slug: pika}
+- {source: ashby,      company: Browserbase,           bucket: ailab, slug: browserbase}
+- {source: ashby,      company: Unstructured,          bucket: ailab, slug: unstructured}
+- {source: ashby,      company: Weaviate,              bucket: ailab, slug: weaviate}
+
+# SpaceX is ITAR-restricted: most reqs demand US citizen / permanent resident,
+# which he is not. Included because the clearance blockers filter those out
+# automatically, and the remainder are still worth seeing.
+- {source: greenhouse, company: SpaceX,      bucket: enterprise, slug: spacex}
+
+# --- infra / security / SaaS ---
+- {source: greenhouse, company: MongoDB,     bucket: enterprise, slug: mongodb}
+- {source: greenhouse, company: Okta,        bucket: enterprise, slug: okta}
+- {source: greenhouse, company: Zscaler,     bucket: enterprise, slug: zscaler}
+- {source: greenhouse, company: Elastic,     bucket: enterprise, slug: elastic}
+- {source: greenhouse, company: Twilio,      bucket: enterprise, slug: twilio}
+- {source: greenhouse, company: Asana,       bucket: enterprise, slug: asana}
+- {source: greenhouse, company: Dropbox,     bucket: enterprise, slug: dropbox}
+
+# --- consumer / gaming / mobility ---
+- {source: greenhouse, company: Roblox,      bucket: enterprise, slug: roblox}
+- {source: greenhouse, company: Epic Games,  bucket: enterprise, slug: epicgames}
+- {source: greenhouse, company: Twitch,      bucket: enterprise, slug: twitch}
+- {source: greenhouse, company: Peloton,     bucket: enterprise, slug: peloton}
+- {source: greenhouse, company: Lucid Motors, bucket: enterprise, slug: lucidmotors}
+- {source: greenhouse, company: Flexport,    bucket: enterprise, slug: flexport}
+- {source: greenhouse, company: Faire,       bucket: enterprise, slug: faire}
+
+# --- fintech ---
+- {source: greenhouse, company: SoFi,        bucket: enterprise, slug: sofi}
+- {source: greenhouse, company: Chime,       bucket: enterprise, slug: chime}
+- {source: greenhouse, company: Carta,       bucket: enterprise, slug: carta}
+- {source: greenhouse, company: Marqeta,     bucket: enterprise, slug: marqeta}
+- {source: greenhouse, company: Betterment,  bucket: enterprise, slug: betterment}
+- {source: greenhouse, company: EarnIn,      bucket: enterprise, slug: earnin}
+- {source: greenhouse, company: Gusto,       bucket: enterprise, slug: gusto}
+
+# Direct APIs for these are unreachable: Microsoft's gcsservices host serves a
+# cert for *.azureedge.net (hostname mismatch, endpoint decommissioned),
+# Google's careers API 404s, Meta's GraphQL needs a doc_id, Apple returns 401,
+# and Tesla/Dice 403 behind Cloudflare. They all post to the aggregators, so
+# we reach them with company-targeted searches rather than keyword-only ones.
+- source: aggregator
+  company: BigTech via aggregators
+  bucket: bigtech
+  sites: [indeed, linkedin]
+  hours_old: 336
+  results_per_term: 25
+  terms:
+    - Microsoft machine learning engineer
+    - Microsoft AI engineer
+    - Google machine learning engineer
+    - Google AI engineer
+    - Meta machine learning engineer
+    - Apple machine learning engineer
+    - Tesla machine learning engineer
+    - Netflix machine learning engineer
+    - Uber machine learning engineer
+
+# Staffing firms need company-targeted terms. Generic keyword searches return
+# product companies and surface almost no vendor postings — verified: the
+# generic feed found 0 Kforce/Insight Global/TEKsystems rows while these
+# targeted terms find them reliably.
+- source: aggregator
+  company: Staffing via aggregators
+  bucket: staffing
+  sites: [indeed, linkedin]
+  hours_old: 504
+  results_per_term: 25
+  terms:
+    - Kforce machine learning
+    - Kforce AI engineer
+    - Insight Global AI engineer
+    - Insight Global machine learning
+    - Randstad machine learning
+    - Randstad Digital AI engineer
+    - TEKsystems AI engineer
+    - TEKsystems machine learning
+    - Robert Half machine learning
+    - Motion Recruitment AI engineer
+    - Apex Systems machine learning
+    - Collabera AI engineer

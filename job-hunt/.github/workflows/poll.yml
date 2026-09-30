@@ -1,0 +1,134 @@
+name: poll
+
+# Three times a day while preferences are still being validated: noon and
+# 6pm Central. The 8am slot belongs to digest.yml, which polls as well.
+#
+# Hourly was dropped deliberately. GitHub's scheduled workflows are
+# best-effort: observed runs fired at :40-:44 rather than the requested :07,
+# and two consecutive hours were skipped entirely. At 3x/day a 40-minute
+# delay is irrelevant; at hourly it meant unpredictable gaps.
+#
+# Times are Eastern — Vishnu is in Tampa. Cron is UTC and does not follow
+# DST, so these are EDT (UTC-4) and shift to 11:00/17:00 Eastern when EST
+# returns in November.
+on:
+  schedule:
+    - cron: "0 17 * * *"    # 12:00 Central (Dallas)
+    - cron: "0 23 * * *"    # 18:00 Central (Dallas)
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: "Send Telegram alerts"
+        type: boolean
+        default: true
+
+concurrency:
+  group: poll
+  cancel-in-progress: false   # let a slow run finish rather than lose its state
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    permissions:
+      contents: write         # needed to commit data/state.json.gz back
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Restore personal config
+        env:
+          IDENTITY_YML: ${{ secrets.IDENTITY_YML }}
+        run: |
+          if [ -z "$IDENTITY_YML" ]; then
+            echo "::warning::IDENTITY_YML secret not set — using conservative defaults"
+          else
+            printf '%s' "$IDENTITY_YML" > config/identity.yml
+          fi
+
+      - name: Poll and alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -m jobhunt poll --notify --top 15 --min-score 65
+
+      - name: Publish site branch for Cloudflare Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -m jobhunt site
+          cd site
+          # A throwaway repo containing only the built site, force-pushed to an
+          # orphan `site` branch. Committing ~900 KB of JSON to main three
+          # times a day would grow the repo by ~1 GB a year; this keeps exactly
+          # one commit and no history.
+          git init -q -b site
+          git config user.name  "jobhunt-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "site: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # Non-fatal: the branch is a record of what was deployed, and
+          # losing it must not stop the board from updating.
+          if git push -f -q \
+              "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+              site:site; then
+            echo "published $(du -sh . | cut -f1) to the site branch"
+          else
+            echo "::warning::site branch push failed; continuing to deploy"
+          fi
+
+          cd ..
+      # Deploy straight to Cloudflare Pages from here rather than using
+      # Cloudflare's git integration. That integration repeatedly built `main`
+      # (running pip install -r requirements.txt) and created a Worker running
+      # `npx wrangler deploy` instead of a Pages project. Deploying from CI
+      # removes both failure modes: this job already has the built site, and
+      # the branch it came from is not in question.
+      - name: Deploy to Cloudflare Pages
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          PROJ: ${{ vars.CF_PROJECT_NAME || 'jobhunt-board' }}
+        run: |
+          # wrangler deploys but never creates. On a fresh account the project
+          # does not exist yet and the deploy dies with "project does not
+          # exist", so create it first and ignore the error when it is already
+          # there. Note the *.pages.dev subdomain is globally unique — if the
+          # name is taken by someone else, creation fails and the log says so.
+          npx --yes wrangler@4 pages project create "$PROJ" \
+            --production-branch main || echo "project exists (or name taken) — continuing"
+          npx --yes wrangler@4 pages deploy site/public \
+            --project-name "$PROJ" \
+            --branch main \
+            --commit-dirty=true
+
+      - name: Commit updated state
+        run: |
+          rm -f config/identity.yml
+          # `git add` FIRST, then compare against the index. Plain `git diff`
+          # only sees tracked files, so on a fresh start — where state.json.gz
+          # was deleted to clear the previous owner's history — the newly
+          # written file is untracked, the diff reports "no change", and the
+          # state is never committed. Every later run then looks like a first
+          # run and suppresses its alerts forever.
+          git add data/state.json.gz
+          if git diff --cached --quiet -- data/state.json.gz; then
+            echo "state unchanged"
+            exit 0
+          fi
+          git config user.name  "jobhunt-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "state: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # Another hourly run may have landed while this one was polling.
+          git pull --rebase --autostash origin main
+          git push

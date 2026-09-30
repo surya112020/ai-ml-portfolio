@@ -1,0 +1,33 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local state — the DB is rebuilt by polling, and committing it would leak
+# nothing sensitive but would churn every 15 minutes.
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/dashboard.html
+
+# Secrets: Telegram token, chat id, any API keys.
+.env
+config/secrets.yml
+
+# Personal data: name, contact details, visa status.
+config/identity.yml
+
+# Generated application material (contains personal details).
+out/
+resumes/
+*.pdf
+!docs/*.pdf
+
+.DS_Store
+logs/
+data/board.html
+config/resume.yml
+application-kit/
+site/
+data/tracker.xlsx
+~$*
+data/~$*

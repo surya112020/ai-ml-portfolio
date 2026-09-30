@@ -1,0 +1,21 @@
+# Copy to config/identity.yml and fill in. identity.yml is gitignored —
+# it holds personal data and must never be committed, even to a private repo
+# (Actions logs and forks leak more than people expect).
+
+identity:
+  name: Your Name
+  email: you@example.com
+  phone: "000-000-0000"
+  base_location: State
+  open_to_relocate: true
+  linkedin: ""
+  github: ""
+
+work_authorization:
+  status: ""                        # e.g. F-1 STEM OPT, H-1B, GC, USC
+  ead_valid_through: null           # YYYY-MM-DD, or null
+  requires_sponsorship_now: false   # can you work today without sponsorship?
+  requires_sponsorship_future: true # will you need it later?
+  # Non-citizens generally cannot obtain a US security clearance. When false,
+  # any posting demanding clearance is treated as a hard blocker.
+  clearance_eligible: false

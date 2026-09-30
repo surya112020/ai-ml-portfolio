@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Install:
+  cp tools/com.jobhunt.poll.plist ~/Library/LaunchAgents/
+  launchctl load ~/Library/LaunchAgents/com.jobhunt.poll.plist
+
+Check / stop:
+  launchctl list | grep jobhunt
+  launchctl unload ~/Library/LaunchAgents/com.jobhunt.poll.plist
+
+RunAtLoad fires one poll immediately so you can confirm it works without
+waiting 10 minutes. launchd skips runs while the Mac is asleep and catches
+up on wake, which is the behaviour we want here.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.jobhunt.poll</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/vishnusaigarneni/jobhunt/tools/local_poll.sh</string>
+    </array>
+
+    <key>StartInterval</key>
+    <integer>1800</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/vishnusaigarneni/jobhunt</string>
+
+    <key>StandardOutPath</key>
+    <string>/Users/vishnusaigarneni/jobhunt/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/vishnusaigarneni/jobhunt/logs/launchd.err.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>
